@@ -1,0 +1,7 @@
+{
+  "timestamp": "2025-11-24T08:18:31.160524",
+  "error": "argument of type 'NoneType' is not iterable",
+  "is_valid": false,
+  "current_src": null,
+  "matched_level": null
+}
