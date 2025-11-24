@@ -34,12 +34,7 @@ jobs:
       - name: 依存関係インストール
         run: |
           pip install selenium beautifulsoup4 requests
-      
-      - name: ChromeDriverセットアップ
-        uses: nanasess/setup-chromedriver@v2
-        with:
-          chromedriver-version: 'latest'
-      
+            
       - name: 監視実行
         run: |
           python scripts/monitor.py
