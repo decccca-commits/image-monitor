@@ -53,3 +53,4 @@ timestamp,matched_level,is_valid,current_src,error
 2025-11-25T15:58:20.521732,,False,,argument of type 'NoneType' is not iterable
 2025-11-25T16:58:25.939065,,False,,argument of type 'NoneType' is not iterable
 2025-11-25T17:41:55.829616,,False,,argument of type 'NoneType' is not iterable
+2025-11-25T17:57:52.168080,,False,,argument of type 'NoneType' is not iterable
