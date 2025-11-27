@@ -147,3 +147,4 @@ timestamp,matched_level,is_valid,current_src,error
 2025-11-27T22:38:57.668978,,False,,argument of type 'NoneType' is not iterable
 2025-11-27T22:50:47.349509,,False,,argument of type 'NoneType' is not iterable
 2025-11-27T23:32:41.602774,,False,https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png,
+2025-11-27T23:48:07.283837,,False,,argument of type 'NoneType' is not iterable
