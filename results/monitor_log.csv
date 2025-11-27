@@ -120,3 +120,4 @@ timestamp,matched_level,is_valid,current_src,error
 2025-11-27T09:42:00.002467,,False,https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png,
 2025-11-27T09:58:14.447001,,False,,argument of type 'NoneType' is not iterable
 2025-11-27T10:48:00.406033,,False,,argument of type 'NoneType' is not iterable
+2025-11-27T11:00:38.195352,,False,https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png,
