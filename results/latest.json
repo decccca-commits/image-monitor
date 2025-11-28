@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-11-28T04:48:07.895841",
-  "current_src": "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png",
-  "matched_level": null,
+  "timestamp": "2025-11-28T04:59:43.483037",
+  "error": "argument of type 'NoneType' is not iterable",
   "is_valid": false,
-  "full_url": "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png"
+  "current_src": null,
+  "matched_level": null
 }
