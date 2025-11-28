@@ -180,3 +180,4 @@ timestamp,matched_level,is_valid,current_src,error
 2025-11-28T18:00:09.685106,,False,,argument of type 'NoneType' is not iterable
 2025-11-28T18:55:52.502671,,False,,argument of type 'NoneType' is not iterable
 2025-11-28T19:27:33.014490,,False,,argument of type 'NoneType' is not iterable
+2025-11-28T19:43:50.802297,,False,,argument of type 'NoneType' is not iterable
