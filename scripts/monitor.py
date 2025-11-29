@@ -68,8 +68,8 @@ class ImageMonitor:
                 'timestamp': datetime.now().isoformat(),
                 'error': str(e),
                 'is_valid': False,
-                'current_src': None,
-                'matched_level': None
+                'current_src': '',
+                'matched_level': ''
             }
         finally:
             driver.quit()
