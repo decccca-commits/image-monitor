@@ -36,13 +36,16 @@ class ImageMonitor:
             driver.get(self.url)
             
             # 要素が読み込まれるまで待機
-            wait = WebDriverWait(driver, 10)
+            wait = WebDriverWait(driver, 30)
             img_element = wait.until(
                 EC.presence_of_element_located((By.XPATH, self.xpath))
             )
             
             current_src = img_element.get_attribute('src')
             print(f"取得したsrc: {current_src}")
+
+                        # 画像読み込みを追加で待つ
+            time.sleep(2)
 
                         # current_srcがNoneの場合はエラーを返す
             if current_src is None:
