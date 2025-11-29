@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-11-30T08:48:00.425560+09:00",
-  "current_src": "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png",
-  "matched_level": null,
+  "timestamp": "2025-11-30T08:59:45.370322+09:00",
+  "error": "Image src attribute is None",
   "is_valid": false,
-  "full_url": "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png"
+  "current_src": "",
+  "matched_level": ""
 }
