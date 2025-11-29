@@ -2,7 +2,7 @@ import os
 import time
 import json
 import csv
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -48,7 +48,7 @@ class ImageMonitor:
             if current_src is None:
                 print("エラー: srcがNoneです")
                 return {
-                    'timestamp': datetime.now().isoformat(),
+                    'timestamp': datetime.now(timezone(timedelta(hours=9))).isoformat(),
                     'error': 'Image src attribute is None',
                     'is_valid': False,
                     'current_src': '',
@@ -63,7 +63,7 @@ class ImageMonitor:
                     break
             
             result = {
-                'timestamp': datetime.now().isoformat(),
+                'timestamp': datetime.now(timezone(timedelta(hours=9))).isoformat(),
                 'current_src': current_src,
                 'matched_level': matched_level,
                 'is_valid': matched_level is not None,
@@ -76,7 +76,7 @@ class ImageMonitor:
         except Exception as e:
             print(f"エラー発生: {e}")
             return {
-                'timestamp': datetime.now().isoformat(),
+                'timestamp': datetime.now(timezone(timedelta(hours=9))).isoformat(),
                 'error': str(e),
                 'is_valid': False,
                 'current_src': '',
