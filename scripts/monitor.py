@@ -43,6 +43,17 @@ class ImageMonitor:
             
             current_src = img_element.get_attribute('src')
             print(f"取得したsrc: {current_src}")
+
+                        # current_srcがNoneの場合はエラーを返す
+            if current_src is None:
+                print("エラー: srcがNoneです")
+                return {
+                    'timestamp': datetime.now().isoformat(),
+                    'error': 'Image src attribute is None',
+                    'is_valid': False,
+                    'current_src': '',
+                    'matched_level': ''
+                }
             
             # レベル判定
             matched_level = None
