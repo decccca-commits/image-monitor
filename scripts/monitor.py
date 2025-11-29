@@ -12,7 +12,7 @@ from selenium.webdriver.support import expected_conditions as EC
 class ImageMonitor:
     def __init__(self):
         self.url = "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/hakata-gym-train.html"
-        self.xpath  "//img[@id='logo']"
+        self.xpath  '//img[@id="logo"]'
         self.valid_paths = [
             'image/Lv1-image.png',
             'image/Lv2-image.png',
