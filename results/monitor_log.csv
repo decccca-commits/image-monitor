@@ -220,3 +220,4 @@ timestamp,matched_level,is_valid,current_src,error
 2025-11-29T22:44:53.801205+09:00,,False,,Image src attribute is None
 2025-11-29T22:57:34.431564+09:00,,False,,Image src attribute is None
 2025-11-29T23:37:24.265105+09:00,,False,https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png,
+2025-11-29T23:49:24.778409+09:00,,False,,Image src attribute is None
