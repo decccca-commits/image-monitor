@@ -2,9 +2,12 @@ import os
 import time
 import json
 import csv
-import requests
 from datetime import datetime, timezone, timedelta
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def retry_on_failure(func, max_retries=3, delay=5):
@@ -26,7 +29,6 @@ def retry_on_failure(func, max_retries=3, delay=5):
 class ImageMonitor:
     def __init__(self):
         self.url = "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/hakata-gym-train.html"
-        self.xpath = '//img[@id="logo"]'
         self.valid_paths = [
             'image/Lv1-image.png',
             'image/Lv2-image.png',
@@ -34,35 +36,54 @@ class ImageMonitor:
             'image/Lv4-image.png'
         ]
 
+    def setup_driver(self):
+        """最適化されたChrome WebDriverをセットアップ"""
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--window-size=1920x1080')
+        # Bot検知回避設定
+        options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        options.add_experimental_option('useAutomationExtension', False)
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        return webdriver.Chrome(options=options)
+
     def check_image(self):
-        """画像をチェックする (requests + BeautifulSoup使用)"""
+        """画像をチェックする (JavaScript実行後のsrcを取得)"""
+        driver = None
         try:
             print(f"アクセス中: {self.url}")
+            driver = self.setup_driver()
+            driver.get(self.url)
+
+            # 要素が読み込まれるまで待機
+            wait = WebDriverWait(driver, 30)
+            img_element = wait.until(
+                EC.presence_of_element_located((By.ID, 'logo'))
+            )
+
+            # JavaScriptが実行されて画像が更新されるまで待機
+            print("JavaScriptの実行待機中...")
+            time.sleep(5)  # JavaScriptが実行されるまで待機
+
+            # srcがmente-image.png以外に変わるまで最大10秒待機
+            for i in range(10):
+                current_src = img_element.get_attribute('src')
+                print(f"{i+1}回目: {current_src}")
+                
+                if current_src and 'mente-image.png' not in current_src:
+                    print("\u6709効な画像を検出！")
+                    break
+                    
+                time.sleep(1)
             
-            # 通常のブラウザとしてアクセス
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1'
-            }
-            
-            response = requests.get(self.url, headers=headers, timeout=30)
-            response.raise_for_status()
-            
-            # HTMLをパース
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # id="logo"の画像を検索
-            img_element = soup.find('img', id='logo')
-            
-            if not img_element or 'src' not in img_element.attrs:
-                raise ValueError("Image element with id='logo' not found or has no src attribute")
-            
-            current_src = img_element['src']
-            print(f"取得したsrc: {current_src}")
+            print(f"最終的に取得したsrc: {current_src}")
+
+            if current_src is None:
+                raise ValueError("Image src attribute is None")
 
             # レベル判定
             matched_level = None
@@ -84,6 +105,8 @@ class ImageMonitor:
 
         except Exception as e:
             print(f"エラー発生: {e}")
+            import traceback
+            traceback.print_exc()
             return {
                 'timestamp': datetime.now(timezone(timedelta(hours=9))).isoformat(),
                 'error': str(e),
@@ -91,13 +114,14 @@ class ImageMonitor:
                 'current_src': '',
                 'matched_level': ''
             }
+        finally:
+            if driver:
+                driver.quit()
 
     def save_results(self, result):
         """結果をCSVとJSONに保存"""
-        # 結果ディレクトリの作成
         os.makedirs('results', exist_ok=True)
 
-        # CSVファイルに保存
         csv_file = 'results/monitor_log.csv'
         file_exists = os.path.isfile(csv_file)
 
@@ -116,7 +140,6 @@ class ImageMonitor:
                 'error': result.get('error', '')
             })
 
-        # 最新結果をJSONでも保存
         with open('results/latest.json', 'w', encoding='utf-8') as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
 
@@ -129,19 +152,16 @@ def main():
 
     monitor = ImageMonitor()
 
-    # リトライ機構付きでチェック実行
     try:
         result = retry_on_failure(monitor.check_image, max_retries=3, delay=5)
         monitor.save_results(result)
 
-        # 結果をサマリー出力
         if result['is_valid']:
             print(f"✅ 成功: {result['matched_level']} を検出")
         else:
             print(f"⚠️ 警告: 有効な画像が検出されませんでした")
 
     except Exception as e:
-        # 最終的に失敗した場合もエラー情報を保存
         error_result = {
             'timestamp': datetime.now(timezone(timedelta(hours=9))).isoformat(),
             'error': str(e),
