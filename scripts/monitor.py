@@ -50,6 +50,7 @@ def extract_text_from_screenshot(driver):
     
     return text
 
+53
 def analyze_occupancy_from_text(text):
     """抽出テキストから混雑状況を判定"""
     text = text.lower()
