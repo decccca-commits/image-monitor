@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-11-30T11:46:52.642707+09:00",
-  "error": "Image element with id='logo' not found or has no src attribute",
+  "timestamp": "2025-11-30T12:48:54.516264+09:00",
+  "current_src": "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png",
+  "matched_level": "",
   "is_valid": false,
-  "current_src": "",
-  "matched_level": ""
+  "error": ""
 }
