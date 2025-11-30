@@ -67,8 +67,7 @@ class ImageMonitor:
 
             # JavaScriptが実行されて画像が更新されるまで待機
             print("JavaScriptの実行待機中...")
-            time.sleep(5)  # JavaScriptが実行されるまで待機
-
+            time.sleep(15)  # JavaScriptが実行されるまで待機
             # srcがmente-image.png以外に変わるまで最大10秒待機
             for i in range(10):
                 current_src = img_element.get_attribute('src')
