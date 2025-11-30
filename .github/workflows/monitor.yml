@@ -28,10 +28,15 @@ jobs:
         uses: browser-actions/setup-chrome@latest
         with:
           chrome-version: stable
+          
+      - name: Tesseract OCRインストール
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-jpn
       
       - name: 依存関係インストール
         run: |
-          pip install selenium
+          pip install selenium pytesseract pillow
       
       - name: 監視実行（JavaScript実行待機付き）
         run: |
