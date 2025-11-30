@@ -2,12 +2,9 @@ import os
 import time
 import json
 import csv
+import requests
 from datetime import datetime, timezone, timedelta
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
 
 
 def retry_on_failure(func, max_retries=3, delay=5):
@@ -37,44 +34,35 @@ class ImageMonitor:
             'image/Lv4-image.png'
         ]
 
-    def setup_driver(self):
-        """Chrome WebDriverをセットアップ"""
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-gpu')
-        options.add_argument('--window-size=1920x1080')
-                
-        # Bot検知回避のための追加設定
-        options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-        options.add_experimental_option('excludeSwitches', ['enable-automation'])
-        options.add_experimental_option('useAutomationExtension', False)
-        options.add_argument('--disable-blink-features=AutomationControlled')
-        return webdriver.Chrome(options=options)
-
     def check_image(self):
-        """画像をチェックする"""
-        driver = None
+        """画像をチェックする (requests + BeautifulSoup使用)"""
         try:
             print(f"アクセス中: {self.url}")
-            driver = self.setup_driver()
-            driver.get(self.url)
-
-            # 要素が読み込まれるまで待機
-            wait = WebDriverWait(driver, 30)
-            img_element = wait.until(
-                EC.presence_of_element_located((By.XPATH, self.xpath))
-            )
-
-            # 画像読み込みを追加で待つ
-            time.sleep(2)
-
-            current_src = img_element.get_attribute('src')
+            
+            # 通常のブラウザとしてアクセス
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1'
+            }
+            
+            response = requests.get(self.url, headers=headers, timeout=30)
+            response.raise_for_status()
+            
+            # HTMLをパース
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # id="logo"の画像を検索
+            img_element = soup.find('img', id='logo')
+            
+            if not img_element or 'src' not in img_element.attrs:
+                raise ValueError("Image element with id='logo' not found or has no src attribute")
+            
+            current_src = img_element['src']
             print(f"取得したsrc: {current_src}")
-
-            if current_src is None:
-                raise ValueError("Image src attribute is None")
 
             # レベル判定
             matched_level = None
@@ -103,9 +91,6 @@ class ImageMonitor:
                 'current_src': '',
                 'matched_level': ''
             }
-        finally:
-            if driver:
-                driver.quit()
 
     def save_results(self, result):
         """結果をCSVとJSONに保存"""
