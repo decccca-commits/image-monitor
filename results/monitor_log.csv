@@ -246,3 +246,4 @@ timestamp,matched_level,is_valid,current_src,error
 2025-11-30T09:48:46.670801+09:00,,False,https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png,
 2025-11-30T09:52:55.348783+09:00,,False,https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png,
 2025-11-30T10:00:05.331430+09:00,,False,https://svc01.p-counter.jp/v4shr3svr/shinko-sports/image/mente-image.png,
+2025-11-30T11:46:52.642707+09:00,,False,,Image element with id='logo' not found or has no src attribute
