@@ -3,7 +3,7 @@ name: 画像監視システム
 on:
   schedule:
     # 10分ごとに実行 (UTC時間)
-    - cron: '*/10 * * * *'
+    - cron: '*/10 0-12 * * *'  # 9:00-21:00 JST (UTC+9)の営業時間内のみ実行
   workflow_dispatch: # 手動実行も可能
 
 permissions:
