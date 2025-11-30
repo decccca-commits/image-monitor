@@ -54,22 +54,36 @@ def analyze_occupancy_from_text(text):
     """抽出テキストから混雑状況を判定"""
     text = text.lower()
     
-    # 混雑レベルのキーワードマッチング
-    if "空いてます" in text or "空いています" in text or "empty" in text:
-        return "Lv1", "空いてます"
-    elif "やや混雑" in text or "almost empty" in text:
-        return "Lv2", "やや混雑しています"
-    elif "混雑しています" in text and "やや" not in text and "非常" not in text:
+ def analyze_occupancy_from_text(text):
+    """抽出テキストから混雑状況を判定"""
+    # テキストを最初の500文字に限定（メインコンテンツのみ）
+    # これにより凡例部分を除外
+    main_text = text[:500]
+    
+    # 大文字の英語表記を優先的にチェック（より確実）
+    if "HALF-FULL" in text or "HALF FULL" in text:
         return "Lv3", "混雑しています"
-    elif "非常に混雑" in text or "very crowded" in text:
+    elif "ALMOST EMPTY" in text or "ALMOST-EMPTY" in text:
+        return "Lv2", "やや混雑しています"
+    elif "EMPTY" in text and "ALMOST" not in text:
+        return "Lv1", "空いてます"
+    elif "VERY CROWDED" in text or "FULL" in text and "HALF" not in text:
         return "Lv4", "非常に混雑しています"
     
-    return None, "判定できませんでした"
-
-def monitor_page():
-    """ページ監視のメイン関数"""
-    driver = None
-    try:
+    # 日本語でのフォールバックチェック（メインテキスト部分のみ）
+    main_text_lower = main_text.lower()
+    
+    # 「現在の状況」の直後のテキストをチェック
+    if "非常に混雑" in main_text or "非常に混" in main_text:
+        return "Lv4", "非常に混雑しています"
+    elif "混雑しています" in main_text and "やや" not in main_text.split("混雑しています")[0][-10:]:
+        return "Lv3", "混雑しています"
+    elif "やや混雑" in main_text:
+        return "Lv2", "やや混雑しています"
+    elif "空いてます" in main_text or "空いています" in main_text:
+        return "Lv1", "空いてます"
+    
+    return None, "判定できませんでした"   try:
         driver = setup_driver()
         url = "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/hakata-gym-train.html"
         
