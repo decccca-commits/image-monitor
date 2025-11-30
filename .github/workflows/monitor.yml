@@ -24,13 +24,20 @@ jobs:
         with:
           python-version: '3.11'
       
+      - name: Chrome環境セットアップ
+        uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+      
       - name: 依存関係インストール
         run: |
-          pip install requests beautifulsoup4
+          pip install selenium
       
-      - name: 監視実行（リトライ機構内蔵）
+      - name: 監視実行（JavaScript実行待機付き）
         run: |
           python scripts/monitor.py
+        env:
+          DISPLAY: :99
         continue-on-error: true
       
       - name: 結果確認
