@@ -44,19 +44,14 @@ def analyze_occupancy_from_text(text):
     main_text = text[:500]
     if "HALF-FULL" in text or "HALF FULL" in text:
         return "Lv3", "混雑しています"
-    elif "ALMOST EMPTY" in text or "ALMOST-EMPTY" in text:
-        return "Lv2", "やや混雑しています"
-    elif "EMPTY" in text and "ALMOST" not in text:
-        return "Lv1", "空いてます"
-    elif "VERY CROWDED" in text or ("FULL" in text and "HALF" not in text):
+        # 日本語表記を優先して判定
+    if "非常に混雑" in main_text:
         return "Lv4", "非常に混雑しています"
-    if "非常に混雑" in main_text or "非常に混" in main_text:
-        return "Lv4", "非常に混雑しています"
-    elif "混雑しています" in main_text and "やや" not in main_text.split("混雑しています")[0][-10:]:
+    elif "混雑しています" in main_text and "やや" not in main_text:
         return "Lv3", "混雑しています"
     elif "やや混雑" in main_text:
         return "Lv2", "やや混雑しています"
-    elif "空いてます" in main_text or "空いています" in main_text:
+    elif "空いてます" in main_text or "EMPTY" in main_text:
         return "Lv1", "空いてます"
     return None, "判定できませんでした"
 
