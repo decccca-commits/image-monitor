@@ -20,8 +20,8 @@ def retry_on_failure(func, max_retries=3, delay=5):
             print(f"Attempt {attempt + 1} failed, retrying...")
         except Exception as e:
             print(f"Error on attempt {attempt + 1}: {e}")
-        if attempt < max_retries - 1:
-            time.sleep(delay)
+            if attempt < max_retries - 1:
+                time.sleep(delay)
     return None
 
 def setup_driver():
@@ -42,9 +42,15 @@ def extract_text_from_screenshot(driver):
 
 def analyze_occupancy_from_text(text):
     main_text = text[:500]
+    
+    # メンテナンス中の判定を最優先
+    if "メンテナンス" in main_text or "メンテナンス中" in main_text or "maintenance" in main_text.lower():
+        return None, "メンテナンス中のため判定不可"
+    
     if "HALF-FULL" in text or "HALF FULL" in text:
         return "Lv3", "混雑しています"
-        # 日本語表記を優先して判定
+    
+    # 日本語表記を優先して判定
     if "非常に混雑" in main_text:
         return "Lv4", "非常に混雑しています"
     elif "混雑しています" in main_text and "やや" not in main_text:
@@ -53,6 +59,7 @@ def analyze_occupancy_from_text(text):
         return "Lv2", "やや混雑しています"
     elif "空いてます" in main_text or "EMPTY" in main_text:
         return "Lv1", "空いてます"
+    
     return None, "判定できませんでした"
 
 def monitor_page():
@@ -62,10 +69,13 @@ def monitor_page():
         url = "https://svc01.p-counter.jp/v4shr3svr/shinko-sports/hakata-gym-train.html"
         print(f"Navigating to {url}")
         driver.get(url)
+        
         WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         time.sleep(10)
+        
         extracted_text = extract_text_from_screenshot(driver)
         level, status = analyze_occupancy_from_text(extracted_text)
+        
         return {
             "is_valid": level is not None,
             "matched_level": level if level else "Unknown",
@@ -87,9 +97,12 @@ def monitor_page():
 def save_to_csv(data):
     csv_file = "results/monitor_log.csv"
     os.makedirs("results", exist_ok=True)
+    
     jst = timezone(timedelta(hours=9))
     timestamp = datetime.now(jst).strftime("%Y-%m-%d %H:%M:%S")
+    
     file_exists = os.path.isfile(csv_file)
+    
     with open(csv_file, mode="a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         if not file_exists:
@@ -106,6 +119,7 @@ def save_to_csv(data):
 def main():
     print("Starting gym occupancy monitoring (screenshot text extraction method)...")
     result = retry_on_failure(monitor_page, max_retries=3, delay=5)
+    
     if result is None:
         result = {
             "is_valid": False,
@@ -113,6 +127,7 @@ def main():
             "status_text": "全てのリトライが失敗しました",
             "extracted_text_preview": ""
         }
+    
     save_to_csv(result)
     print(f"Monitoring complete. Result: {result}")
 
