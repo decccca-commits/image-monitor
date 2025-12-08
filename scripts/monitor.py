@@ -118,18 +118,46 @@ def save_to_csv(data):
 
 def main():
     print("Starting gym occupancy monitoring (screenshot text extraction method)...")
-    result = retry_on_failure(monitor_page, max_retries=3, delay=5)
     
-    if result is None:
-        result = {
-            "is_valid": False,
-            "matched_level": "AllRetriesFailed",
-            "status_text": "全てのリトライが失敗しました",
-            "extracted_text_preview": ""
-        }
+    # メンテナンス中の場合のリトライ設定
+    max_maintenance_retries = 3
+    maintenance_retry_delay = 30  # 30秒待機
     
-    save_to_csv(result)
-    print(f"Monitoring complete. Result: {result}")
+    for maintenance_attempt in range(max_maintenance_retries):
+        result = retry_on_failure(monitor_page, max_retries=3, delay=5)
+        
+        if result is None:
+            result = {
+                "is_valid": False,
+                "matched_level": "AllRetriesFailed",
+                "status_text": "全てのリトライが失敗しました",
+                "extracted_text_preview": ""
+            }
+        
+        # メンテナンス中でない場合は結果を保存して終了
+        if result["is_valid"] or result["matched_level"] == "Error" or result["matched_level"] == "AllRetriesFailed":
+            save_to_csv(result)
+            print(f"Monitoring complete. Result: {result}")
+            break
+        
+        # メンテナンス中の場合
+        if "メンテナンス中" in result["status_text"]:
+            print(f"メンテナンス中を検出 (試行 {maintenance_attempt + 1}/{max_maintenance_retries})")
+            
+            # 最後の試行の場合は結果を保存して終了
+            if maintenance_attempt == max_maintenance_retries - 1:
+                save_to_csv(result)
+                print(f"メンテナンス中のため、{max_maintenance_retries}回の試行後に終了します")
+                print(f"Monitoring complete. Result: {result}")
+            else:
+                # 次の試行まで待機
+                print(f"{maintenance_retry_delay}秒後に再試行します...")
+                time.sleep(maintenance_retry_delay)
+        else:
+            # その他の判定不可の場合は結果を保存して終了
+            save_to_csv(result)
+            print(f"Monitoring complete. Result: {result}")
+            break
 
 if __name__ == "__main__":
     main()
