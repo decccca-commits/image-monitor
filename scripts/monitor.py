@@ -43,9 +43,9 @@ def extract_text_from_screenshot(driver):
 def analyze_occupancy_from_text(text):
     main_text = text[:500]
     
-    # メンテナンス中の判定を最優先
+    # メンテナンス中の判定を最優先（エラーとして扱う）
     if "メンテナンス" in main_text or "メンテナンス中" in main_text or "maintenance" in main_text.lower():
-        return None, "メンテナンス中のため判定不可"
+        return None, "メンテナンス中（エラー状態）"
     
     if "HALF-FULL" in text or "HALF FULL" in text:
         return "Lv3", "混雑しています"
@@ -140,15 +140,14 @@ def main():
             print(f"Monitoring complete. Result: {result}")
             break
         
-        # メンテナンス中の場合
+        # メンテナンス中の場合（エラー扱い）
         if "メンテナンス中" in result["status_text"]:
             print(f"メンテナンス中を検出 (試行 {maintenance_attempt + 1}/{max_maintenance_retries})")
             
-            # 最後の試行の場合は結果を保存して終了
+            # 最後の試行の場合はCSVに記録せずに終了
             if maintenance_attempt == max_maintenance_retries - 1:
-                save_to_csv(result)
-                print(f"メンテナンス中のため、{max_maintenance_retries}回の試行後に終了します")
-                print(f"Monitoring complete. Result: {result}")
+                print(f"メンテナンス中が継続しているため、CSVに記録せずに終了します")
+                print(f"Monitoring complete (maintenance mode detected, no data saved)")
             else:
                 # 次の試行まで待機
                 print(f"{maintenance_retry_delay}秒後に再試行します...")
